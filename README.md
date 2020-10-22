@@ -1,5 +1,5 @@
 ## SoftCool
-Project developed during "IoT Developer Challenge 2020" from @Tech.
+Project developed during "IoT Developer Challenge 2020" from @Tech company.
 
 ## Motivation
 System to monitor temperature and air humidity in compost-bedded pack barns for dairy cows, control the fans and send data through radio frequency modules.
