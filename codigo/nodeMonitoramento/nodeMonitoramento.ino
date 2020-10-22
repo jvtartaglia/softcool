@@ -1,13 +1,34 @@
+/* Projeto XXXX
+ * Desenvolvido durante o Desafio IoT 2020 da @Tech
+ * Autor: João Tartaglia
+ * github.com/jvtartaglia
+ * 
+ * Bibliotecas utilizadas
+ * SPI.h - https://www.arduino.cc/en/reference/SPI
+ * LiquidCrystal- https://www.arduino.cc/en/Reference/LiquidCrystal
+ * RF24 - https://tmrh20.github.io/RF24/index.html
+ */
+
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <LiquidCrystal.h>
 
-#define CE 9
-#define CSN 10
+#define CE 9 // pino 'chip enable' do nRF24l01
+#define CSN 10 // pino 'chip select not' do nRF24l01
 
+// endereco do 'pipe' de comunicacao entre os modulos nRF24l01
 const byte endereco[6] = "00001";
+
+/*  array para armazenar as variaveis controladas e transmitidas
+    dados[0] = temperatura
+    dados[1] = umidade
+    dados[2] = modo de operacao (0 = automatico / 1 = manual)
+    dados[3] = controle do ventilador (0 = desligado / 1 = ligado)
+*/
 float dados[4];
+
+// array utilizado para imprimir o caractere de grau no LCD
 byte grau[8] = { B00001100,
                  B00010010,
                  B00010010,
@@ -18,33 +39,40 @@ byte grau[8] = { B00001100,
                  B00000000,
                };
 
+// parametros definidos anteriormente
 RF24 radio(CE, CSN);
-LiquidCrystal lcd(A0, A5, A4, A3, A2, A1);
+
+/*  atencao aos pinos utilizados durante a conexao do LCD
+    parametros = (RS, E, D4, D5, D6, D7)
+*/
+LiquidCrystal lcd(A0, A5, A4, A3, A2, A1); 
 
 void setup() {
-
-  lcd.begin(16, 2);
+  
+  // configuracoes iniciais do LCD
+  lcd.begin(16, 2); 
   lcd.clear();
-  lcd.createChar(0, grau);
-
+  lcd.createChar(0, grau); 
   lcd.setCursor(0, 0);
   lcd.print("Inicializando...");
-
+  
+  // configuracoes iniciais do nRF24l01
   radio.begin();
   delay(1000);
-  radio.setDataRate( RF24_250KBPS );
+  radio.setDataRate( RF24_250KBPS ); 
   delay(1000);
-  radio.setRetries(3, 5);
+  radio.setRetries(3, 5); 
   delay(1000);
-  radio.openReadingPipe(1, endereco);
+  radio.openReadingPipe(1, endereco); 
   delay(1000);
   radio.setPALevel(RF24_PA_MIN);
   delay(1000);
   radio.startListening();
   delay(1000);
-
   lcd.clear();
-  bool check = radio.isChipConnected();
+  
+  // checa a comunicacao entre o modulo e arduino
+  bool check = radio.isChipConnected(); 
   if (check == 1) {
     lcd.setCursor(0, 0);
     lcd.print("Receptor ligado");
@@ -54,9 +82,10 @@ void setup() {
     lcd.setCursor(4, 1);
     lcd.print("receptor");
   }
-
   delay(2000);
   lcd.clear();
+  
+  // checa a comunicacao entre os nRF24l01
   if (radio.available()) {
     lcd.setCursor(4, 0);
     lcd.print("Conexao");
@@ -100,14 +129,17 @@ void loop() {
       if (dados[2] == 0) {
         lcd.print("Autom.");
         lcd.print(" | ");
+        
         if (dados[0] >= 20) {
           lcd.print("Ligado ");
         } else {
           lcd.print("Deslig.");
         }
+        
       } else {
         lcd.print("Manual");
         lcd.print(" | ");
+        
         if (dados[3] == 1) {
           lcd.print("Ligado ");
         } else {
@@ -115,5 +147,15 @@ void loop() {
         }
       }
     }
+  }
+  
+  while (!radio.available()) {
+    
+    lcd.clear();
+    lcd.setCursor(4, 0);
+    lcd.print("Falha na");
+    lcd.setCursor(3, 1);
+    lcd.print("comunicacao");
+    delay(2000);
   }
 }
