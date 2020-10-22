@@ -1,4 +1,4 @@
-/* Projeto XXXX
+/* Projeto SoftCool
    Desenvolvido durante o Desafio IoT 2020 da @Tech
    Autor: João Tartaglia
    github.com/jvtartaglia
