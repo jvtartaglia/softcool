@@ -14,10 +14,10 @@
 #include <RF24.h>
 #include <DHT.h>
 
-#define DHTPIN0 7
+#define DHTPIN0 2
 #define DHTTYPE DHT11
 #define ventilador 8
-#define switchChaveModo 2
+#define switchChaveModo 4
 #define switchChaveLiga 3
 #define pinoChipEnable 9
 #define pinoChipSelect 10
